@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = 'weather_app'
-        DOCKER_TAG = 'latest'
+        IMAGE_NAME = "weather_app"
+        DOCKER_TAG = "latest"
     }
 
     stages {
@@ -13,35 +13,37 @@ pipeline {
             }
         }
 
-        stage('Build Docker image') {
+        stage('Build Docker Image') {
             steps {
                 script {
-                    sh 'docker build -t $DOCKER_IMAGE:$DOCKER_TAG .'
+                    // Проверяем, что Docker доступен
+                    sh 'docker --version'
+
+                    // Собираем Docker образ
+                    sh "docker build -t ${IMAGE_NAME}:${DOCKER_TAG} ."
                 }
             }
         }
 
-        stage('Test') {
+        stage('Run Container') {
             steps {
-                echo 'Тестирование приложения (если тесты появятся позже)'
-                // sh 'pytest'  # можно добавить позже
-            }
-        }
+                script {
+                    // Останавливаем контейнер, если уже существует
+                    sh "docker rm -f ${IMAGE_NAME} || true"
 
-        stage('Run container (optional)') {
-            steps {
-                echo 'Запуск контейнера для проверки (опционально)'
-                // sh 'docker run -d -p 5000:5000 --name weather_app $DOCKER_IMAGE:$DOCKER_TAG'
+                    // Запускаем контейнер
+                    sh "docker run -d --name ${IMAGE_NAME} -p 5000:5000 ${IMAGE_NAME}:${DOCKER_TAG}"
+                }
             }
         }
     }
 
     post {
         success {
-            echo '✅ CI успешно завершён — Docker-образ собран!'
+            echo 'Pipeline успешно завершён!'
         }
         failure {
-            echo '❌ Ошибка при сборке Docker-образа!'
+            echo 'Pipeline завершился с ошибкой!'
         }
     }
 }
