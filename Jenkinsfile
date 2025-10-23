@@ -16,7 +16,7 @@ pipeline {
         GIT_BRANCH = 'main'
         // Замените на ваши реальные данные
         DOCKER_USERNAME = 'keply186'
-        DOCKER_PASSWORD = 'your-dockerhub-password-or-token'
+        DOCKER_PASSWORD = 'Cfif05ctdth!'
     }
     
     stages {
